@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite it as below."
+title: "Safe-RL-NLPID: safety-shielded online tuning of robust ASV control"
+authors:
+  - family-names: Alfa
+    given-names: Umar
+    affiliation: "IMT Nord Europe, Univ. Lille"
+  - family-names: Houe Ngouna
+    given-names: Raymond
+version: 1.0.0
+date-released: 2026-10-18
+license: MIT
