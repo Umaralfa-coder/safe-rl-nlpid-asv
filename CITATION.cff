@@ -4,9 +4,20 @@ title: "Safe-RL-NLPID: safety-shielded online tuning of robust ASV control"
 authors:
   - family-names: Alfa
     given-names: Umar
-    affiliation: "IMT Nord Europe, Univ. Lille"
+    affiliation: "Center for Digital Systems, IMT Nord Europe, Univ. Lille"
+    email: umar.alfa@imt-nord-europe.fr
+  - family-names: Tijjani
+    given-names: Auwal shehu
+    affiliation: "Center for Digital Systems, IMT Nord Europe, Univ. Lille"
   - family-names: Houe Ngouna
     given-names: Raymond
+    affiliation: "LGP-ENIT, Tarbes"
+  - family-names: Fabresse
+    given-names: Luc
+    affiliation: "Center for Digital Systems, IMT Nord Europe, Univ. Lille"
+  - family-names: Duviella
+    given-names: Eric
+    affiliation: "Center for Digital Systems, IMT Nord Europe, Univ. Lille"
 version: 1.0.0
 date-released: 2026-10-18
 license: MIT

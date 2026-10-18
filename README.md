@@ -3,7 +3,8 @@
 Code for the paper
 
 > **Safety-Shielded Reinforcement Learning-Based Robust Control for Autonomous Surface Vehicles in Water-Quality Monitoring**
-> Umar Alfa and Raymond Houe Ngouna, IMT Nord Europe / Univ. Lille. *Manuscript in preparation.*
+> Umar Alfa, Auwal shehu Tijjani, Raymond Houe Ngouna, Luc Fabresse and Eric Duviella.
+> Center for Digital Systems, IMT Nord Europe, Univ. Lille; LGP-ENIT, Tarbes. *Manuscript in preparation.*
 
 An evolution-strategies (ES) policy tunes the nonlinear parameters of a heading and a surge
 nonlinear PID (NLPID) online. Every proposal passes a **parameter-space shield**:
@@ -109,7 +110,7 @@ in `$SAFE_RL_LOG_DIR` (default `~/seal_ws/logs`).
 
 ```bibtex
 @unpublished{alfa2026saferl,
-  author = {Alfa, Umar and Houe Ngouna, Raymond},
+  author = {Alfa, Umar and Tijjani, Auwal shehu and Houe Ngouna, Raymond and Fabresse, Luc and Duviella, Eric},
   title  = {Safety-Shielded Reinforcement Learning-Based Robust Control for Autonomous Surface Vehicles in Water-Quality Monitoring},
   note   = {Manuscript in preparation},
   year   = {2026}
