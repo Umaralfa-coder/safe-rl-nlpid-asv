@@ -34,6 +34,24 @@ Everything runs in **ROS 2 Jazzy + Gazebo Harmonic + VRX** (WAM-V, `sydney_regat
 
 All results are from simulation, partly from single runs; see the limitations in the paper.
 
+## Gallery
+
+[![Calm water replay](docs/img/calm_replay.png)](docs/img/calm_replay.png)
+Hand-tuned NLPID (A) and the learned turn-aware gains (L_t) on the same survey mission in calm water, synchronised by distance sailed; bottom: cross-track error.
+
+[![Doubled wind replay](docs/img/strong_wind_replay.png)](docs/img/strong_wind_replay.png)
+Doubled wind and waves: hand-tuned A, the frozen learned policy L_t and L_t+ after nine more ES updates in this wind.
+
+[![Water-quality map](docs/img/wq_map_final.png)](docs/img/wq_map_final.png)
+GP water-quality map built along the path from the same trajectory: true field, raw 5-s probe (smeared along the track) and lag-corrected probe.
+
+## Mission videos
+
+- [`video/calm_handtuned_vs_learned.mp4`](video/calm_handtuned_vs_learned.mp4): calm water, A vs L_t (540 m, about 25 s).
+- [`video/strong_wind_frozen_vs_resumed.mp4`](video/strong_wind_frozen_vs_resumed.mp4): doubled wind and waves, A vs frozen L_t vs resumed L_t+.
+- [`video/wq_map_raw_vs_lag_corrected.mp4`](video/wq_map_raw_vs_lag_corrected.mp4): the water-quality map building up, raw vs lag-corrected probe.
+- How the videos are made and how to regenerate them: see [`video/README.md`](video/README.md).
+
 ## Repository layout
 
 ```
@@ -46,9 +64,10 @@ analysis/
   gains.py                      applied parameters: constant or state-dependent?
   learning_curve.py             episode returns from a saved policy file
   certificate/                  vertex LMI (continuous time) and 20 Hz / delay checks
-  figures/                      turn-in + per-leg figure
+  figures/                      turn-in + per-leg figure, mission replay and map videos (make_videos.py)
 scripts/set_weather.sh          switch the VRX world between normal and doubled wind/waves
 docs/RUN_EXPERIMENTS.md         every command for every experiment
+docs/img/, video/               gallery images and mission videos
 results/                        per-leg and map-error tables behind the paper's numbers
 tests/                          offline tests (ROS stubs, no simulator needed)
 ```
