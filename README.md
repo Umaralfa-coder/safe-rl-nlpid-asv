@@ -61,7 +61,7 @@ Requirements: Ubuntu 24.04, ROS 2 Jazzy, Gazebo Harmonic and
 
 ```bash
 cd ~/seal_ws/src
-git clone https://github.com/<your-account>/safe-rl-nlpid-asv.git   # colcon finds the package inside
+git clone https://github.com/Umaralfa-coder/safe-rl-nlpid-asv.git   # colcon finds the package inside
 cd ~/seal_ws && colcon build --merge-install --packages-select safe_rl_nlpid
 source install/setup.bash
 ros2 pkg executables safe_rl_nlpid       # -> buran_controller, wq_sim
