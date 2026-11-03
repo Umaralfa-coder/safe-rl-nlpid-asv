@@ -768,7 +768,7 @@ LOG_FIELDS = (
     + PARAM_ASCII_V
     + ['heading_K_p', 'heading_K_d', 'heading_K_i',
        'velocity_K_p', 'velocity_K_d', 'velocity_K_i',
-       'tau_r', 'tau_u', 'tau_ff', 'left_thrust', 'right_thrust',
+       'tau_r', 'tau_u', 'tau_ff', 'tau_u_force', 'tau_r_moment', 'left_thrust', 'right_thrust',
        'distance_to_target', 'obstacle_detected',
        'x', 'y', 'yaw_deg', 'target_x', 'target_y']
 )
@@ -897,6 +897,7 @@ class BuranController(Node):
         dp('heading_integral_limit', 1.0)
         dp('heading_integral_zone_deg', 20.0)
         dp('torque_scale', 200.0)           # N per unit steering (was 1500 with lower caps)
+        dp('thruster_half_beam', 1.027)     # m, b in paper eq. (4): lateral offset of each thruster (VRX WAM-V)
         dp('forced_turn_deg', 60.0)
         dp('forced_turn_min', 600.0)
         dp('yaw_rate_source', 'heading')    # heading: filtered d(psi)/dt from the orientation | imu: angular_velocity.z
@@ -1010,6 +1011,7 @@ class BuranController(Node):
         self.max_delta_v = float(g('rl_rate_limit_frac')) * (PARAM_HI_V - PARAM_LO_V)
 
         self.torque_scale = g('torque_scale')
+        self.half_beam = float(g('thruster_half_beam'))
         self.forced_turn = math.radians(g('forced_turn_deg'))
         self.forced_turn_min = g('forced_turn_min')
         self.yaw_rate_source = str(g('yaw_rate_source'))
@@ -1500,6 +1502,25 @@ class BuranController(Node):
         lim = max(0.0, SAFE_THRUST - abs(tau_u))
         return clamp(tau_r, -lim, lim)
 
+    def allocate(self, tau_u_force, tau_r_moment):
+        """Thrust allocation of the paper, eq. (4):
+            F2 = tau_u/2 - tau_r/(2b),   F1 = tau_u - F2,
+        i.e. tau_u = F1 + F2 (surge force, N) and tau_r = b (F1 - F2) (yaw moment, N m),
+        with F1 the port (left) and F2 the starboard (right) thruster force and b the
+        lateral offset of each thruster. tau_r follows the marine (NED) sign convention
+        of the paper: positive = clockwise seen from above."""
+        F2 = 0.5 * tau_u_force - tau_r_moment / (2.0 * self.half_beam)
+        F1 = tau_u_force - F2
+        return F1, F2
+
+    def to_paper_inputs(self, u_cmd, r_cmd):
+        """NLPID outputs -> paper inputs of eq. (4). The NLPID works per thruster:
+        u_cmd is the mean thrust and r_cmd half the thrust difference (right - left),
+        both in N, with r_cmd > 0 turning counter-clockwise (ROS / ENU heading).
+        Hence tau_u = 2 u_cmd (N) and tau_r = -2 b r_cmd (N m, NED sign); with these,
+        eq. (4) returns exactly F1 = u_cmd - r_cmd and F2 = u_cmd + r_cmd."""
+        return 2.0 * u_cmd, -2.0 * self.half_beam * r_cmd
+
     def _make_actuator_model(self):
         """Fresh actuator model for one shield rollout: steering -> effective yaw
         torque 0.5*(R - L) after per-thruster clipping and slew limiting, starting
@@ -1509,8 +1530,9 @@ class BuranController(Node):
 
         def act(steering, e):
             tau = self._limit_for_surge(self.steering_to_torque(steering, e), tau_u, e)
-            L = self._slew_limit(state['L'], clamp(tau_u - tau, -SAFE_THRUST, SAFE_THRUST))
-            R = self._slew_limit(state['R'], clamp(tau_u + tau, -SAFE_THRUST, SAFE_THRUST))
+            F1, F2 = self.allocate(*self.to_paper_inputs(tau_u, tau))     # paper eq. (4)
+            L = self._slew_limit(state['L'], clamp(F1, -SAFE_THRUST, SAFE_THRUST))
+            R = self._slew_limit(state['R'], clamp(F2, -SAFE_THRUST, SAFE_THRUST))
             state['L'], state['R'] = L, R
             return 0.5 * (R - L)
         return act
@@ -1737,8 +1759,10 @@ class BuranController(Node):
 
         # ---------------- thrust allocation ----------------
         tau_r = self._limit_for_surge(tau_r, tau_u, e)
-        left = clamp(tau_u - tau_r, -SAFE_THRUST, SAFE_THRUST)
-        right = clamp(tau_u + tau_r, -SAFE_THRUST, SAFE_THRUST)
+        tau_u_force, tau_r_moment = self.to_paper_inputs(tau_u, tau_r)   # surge force (N), yaw moment (N m)
+        F1, F2 = self.allocate(tau_u_force, tau_r_moment)                 # paper eq. (4): F1 port, F2 starboard
+        left = clamp(F1, -SAFE_THRUST, SAFE_THRUST)
+        right = clamp(F2, -SAFE_THRUST, SAFE_THRUST)
         left = self._slew_limit(self.prev_left_thrust, left)
         right = self._slew_limit(self.prev_right_thrust, right)
         self.prev_left_thrust, self.prev_right_thrust = left, right
@@ -1843,6 +1867,7 @@ class BuranController(Node):
                 'heading_K_p': round(Kp, 3), 'heading_K_d': round(Kd, 3), 'heading_K_i': round(Ki, 4),
                 'velocity_K_p': round(vKp, 3), 'velocity_K_d': round(vKd, 3), 'velocity_K_i': round(vKi, 4),
                 'tau_r': round(tau_r, 1), 'tau_u': round(tau_u, 1), 'tau_ff': round(tau_ff, 1),
+                'tau_u_force': round(tau_u_force, 1), 'tau_r_moment': round(tau_r_moment, 1),
                 'left_thrust': round(left, 1), 'right_thrust': round(right, 1),
                 'distance_to_target': round(self.distance_to_target, 2),
                 'obstacle_detected': int(bool(self.obstacle_detected)),
