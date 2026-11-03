@@ -2,8 +2,8 @@
 
 Code for the paper
 
-> **Safety-Shielded Reinforcement Learning-Based Robust Control for Autonomous Surface Vehicles in Water-Quality Monitoring**
-> Umar Alfa, Auwal shehu Tijjani, Raymond Houe Ngouna, Luc Fabresse and Eric Duviella.
+> **Safety-Shielded Reinforcement Learning-Based Robust Control for Surface Aquatic Drones in Water-Quality Monitoring**
+> Umar Alfa, Raymond Houe Ngouna, Auwal Shehu Tijjani, Luc Fabresse and Eric Duviella.
 > Center for Digital Systems, IMT Nord Europe, Univ. Lille; LGP-ENIT, Tarbes. *Manuscript in preparation.*
 
 An evolution-strategies (ES) policy tunes the nonlinear parameters of a heading and a surge
@@ -29,28 +29,26 @@ Everything runs in **ROS 2 Jazzy + Gazebo Harmonic + VRX** (WAM-V, `sydney_regat
 |---|---|
 | E1, shield ablation (3 seeds, 101 paired legs) | Unconstrained random gains: +36 % thrust per metre, ×2 yaw-torque activity, Lyapunov decrease violated on 1.2 % of steps. The same proposals through the shield: no detectable difference from nominal at the seed level. |
 | E2b, turn-aware learning | 38 % lower cross-track error than the hand-tuned NLPID, same turn overshoot, 8 % less thrust, no saturation. |
-| E2d, doubled wind and waves | The frozen learned policy loses its advantage; the disturbance monitor never fires. Resumed learning: 28 % lower heading error than hand-tuned, 2.5× less torque activity, first state-dependent gains (extra damping in some states), but not the cross-track gain (not in the cost) and +11 % thrust. |
+| E2d, doubled wind and waves (A and L<sub>t</sub><sup>+</sup>: two runs each) | The frozen learned policy loses its advantage; the disturbance monitor never fires. Resumed learning: 54 % lower settled heading error than hand-tuned (25 of 28 legs), about half the torque activity, first state-dependent gains (extra damping in some states), but no cross-track gain (not in the cost) and +4 % thrust. |
 | E3, water-quality map | Raw 5-s probe: the lag dominates, all controllers equal. Lag-corrected probe: the shield prevents a 25 % loss of map accuracy, and the turn-aware controller improves it by 18 %. |
 
 All results are from simulation, partly from single runs; see the limitations in the paper.
 
 ## Gallery
 
-[![Calm water replay](docs/img/calm_replay.png)](docs/img/calm_replay.png)
-Hand-tuned NLPID (A) and the learned turn-aware gains (L_t) on the same survey mission in calm water, synchronised by distance sailed; bottom: cross-track error.
+[![Calm water: A vs L_t](docs/img/calm_gallery.png)](video/calm_A_vs_Lt.mp4)
+**Calm water** · hand-tuned NLPID (A) and the policy learned under the shield (L<sub>t</sub>) on the same survey mission, from the first waypoint, at real (simulation) speed. Bottom: the synthetic water-quality field, the map each drone builds from its lagged probe, and live heading error, yaw command and map error.
 
-[![Doubled wind replay](docs/img/strong_wind_replay.png)](docs/img/strong_wind_replay.png)
-Doubled wind and waves: hand-tuned A, the frozen learned policy L_t and L_t+ after nine more ES updates in this wind.
-
-[![Water-quality map](docs/img/wq_map_final.png)](docs/img/wq_map_final.png)
-GP water-quality map built along the path from the same trajectory: true field, raw 5-s probe (smeared along the track) and lag-corrected probe.
+[![Doubled wind and waves: A vs L_t+](docs/img/wind_gallery.png)](video/wind_A_vs_Ltplus.mp4)
+**Doubled wind and waves** · A and L<sub>t</sub><sup>+</sup> (learning resumed in strong wind, always under the shield), from the approach to the first survey waypoint. The learned policy holds the heading closer to the reference with a calmer yaw command.
 
 ## Mission videos
 
-- [`video/calm_handtuned_vs_learned.mp4`](video/calm_handtuned_vs_learned.mp4): calm water, A vs L_t (540 m, about 25 s).
-- [`video/strong_wind_frozen_vs_resumed.mp4`](video/strong_wind_frozen_vs_resumed.mp4): doubled wind and waves, A vs frozen L_t vs resumed L_t+.
-- [`video/wq_map_raw_vs_lag_corrected.mp4`](video/wq_map_raw_vs_lag_corrected.mp4): the water-quality map building up, raw vs lag-corrected probe.
-- How the videos are made and how to regenerate them: see [`video/README.md`](video/README.md).
+- [`video/highlights.mp4`](video/highlights.mp4): 2-min overview (how it works, calm water, doubled wind, results).
+- [`video/calm_A_vs_Lt.mp4`](video/calm_A_vs_Lt.mp4): calm water, A vs L<sub>t</sub>, about 6.5 min.
+- [`video/wind_A_vs_Ltplus.mp4`](video/wind_A_vs_Ltplus.mp4): doubled wind and waves, A vs L<sub>t</sub><sup>+</sup>, about 8.5 min.
+
+Footage: Gazebo/VRX recordings synchronised with the controller logs; shown at 1× simulation time. The water-quality field and probe are simulated and replayed along the logged trajectories.
 
 ## Repository layout
 
@@ -129,8 +127,8 @@ in `$SAFE_RL_LOG_DIR` (default `~/seal_ws/logs`).
 
 ```bibtex
 @unpublished{alfa2026saferl,
-  author = {Alfa, Umar and Tijjani, Auwal shehu and Houe Ngouna, Raymond and Fabresse, Luc and Duviella, Eric},
-  title  = {Safety-Shielded Reinforcement Learning-Based Robust Control for Autonomous Surface Vehicles in Water-Quality Monitoring},
+  author = {Alfa, Umar and Houe Ngouna, Raymond and Tijjani, Auwal Shehu and Fabresse, Luc and Duviella, Eric},
+  title  = {Safety-Shielded Reinforcement Learning-Based Robust Control for Surface Aquatic Drones in Water-Quality Monitoring},
   note   = {Manuscript in preparation},
   year   = {2026}
 }
